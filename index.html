@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Status Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
+        .status-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
+        .status-item:last-child { border-bottom: none; }
+        .service-name { font-weight: bold; font-size: 1.1em; }
+        .status-indicator { padding: 5px 10px; border-radius: 5px; font-size: 0.9em; text-transform: uppercase; }
+        .status-operational { background-color: #e6ffe6; color: #28a745; border: 1px solid #28a745; }
+        .status-degraded { background-color: #fff3cd; color: #ffc107; border: 1px solid #ffc107; }
+        .status-outage { background-color: #f8d7da; color: #dc3545; border: 1px solid #dc3545; }
+        .status-maintenance { background-color: #e0f7fa; color: #17a2b8; border: 1px solid #17a2b8; }
+        .incident-message { background-color: #ffe0b2; color: #e65100; padding: 10px; border-radius: 5px; margin-top: 20px; text-align: center; font-weight: bold; display: none; }
+        .button-group { text-align: center; margin-top: 30px; }
+        .button-group button { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; margin: 0 5px; }
+        .button-group button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Service Status Dashboard</h1>
+        <div id="status-list">
+            <!-- Service status items will be rendered here by JavaScript -->
+        </div>
+        <div id="incident-banner" class="incident-message">
+            We are currently experiencing a major outage with our API Service. Our team is investigating.
+        </div>
+        <div class="button-group">
+            <button onclick="simulateIncident()">Simulate API Outage</button>
+            <button onclick="resolveIncident()">Resolve All Issues</button>
+            <button onclick="simulateMaintenance()">Simulate Scheduled Maintenance</button>
+        </div>
+    </div>
+
+    <script>
+        // Define our service components and their initial status
+        const services = [
+            { id: 'api', name: 'API Service', status: 'operational' },
+            { id: 'database', name: 'Database', status: 'operational' },
+            { id: 'web-app', name: 'Web Application', status: 'operational' },
+            { id: 'cdn', name: 'Content Delivery Network', status: 'operational' }
+        ];
+
+        const statusColors = {
+            operational: 'status-operational',
+            degraded: 'status-degraded',
+            outage: 'status-outage',
+            maintenance: 'status-maintenance'
+        };
+
+        const statusDescriptions = {
+            operational: 'Operational',
+            degraded: 'Degraded Performance',
+            outage: 'Major Outage',
+            maintenance: 'Scheduled Maintenance'
+        };
+
+        const statusListDiv = document.getElementById('status-list');
+        const incidentBanner = document.getElementById('incident-banner');
+
+        // Function to render all service statuses on the page
+        function renderStatus() {
+            statusListDiv.innerHTML = ''; // Clear previous list
+            services.forEach(service => {
+                const statusItem = document.createElement('div');
+                statusItem.className = 'status-item';
+                statusItem.innerHTML = `
+                    <span class="service-name">${service.name}</span>
+                    <span class="status-indicator ${statusColors[service.status]}">${statusDescriptions[service.status]}</span>
+                `;
+                statusListDiv.appendChild(statusItem);
+            });
+        }
+
+        // Function to update the status of a specific service and re-render
+        function updateServiceStatus(serviceId, newStatus) {
+            const serviceIndex = services.findIndex(s => s.id === serviceId);
+            if (serviceIndex !== -1) {
+                services[serviceIndex].status = newStatus;
+                renderStatus(); // Re-render the list to reflect the change
+                // This illustrates the core concept of a status page: transparently updating service status.
+                console.log(`Service ${services[serviceIndex].name} status updated to: ${newStatus}`);
+            }
+        }
+
+        // --- Simulation Functions to demonstrate status page capabilities ---
+
+        function simulateIncident() {
+            updateServiceStatus('api', 'outage'); // Simulate an API outage
+            updateServiceStatus('web-app', 'degraded'); // Web app might be degraded due to API dependency
+            incidentBanner.style.display = 'block'; // Show a prominent incident banner
+            // This demonstrates proactive communication during an unexpected incident.
+            console.log('Simulating API outage and web app degradation.');
+        }
+
+        function resolveIncident() {
+            services.forEach(service => {
+                service.status = 'operational'; // Set all services back to operational
+            });
+            renderStatus();
+            incidentBanner.style.display = 'none'; // Hide the incident banner
+            // This shows the resolution of issues and returning to normal status.
+            console.log('All incidents resolved. Services are operational.');
+        }
+
+        function simulateMaintenance() {
+            updateServiceStatus('database', 'maintenance'); // Simulate database maintenance
+            // This demonstrates communicating planned maintenance to users.
+            console.log('Simulating scheduled database maintenance.');
+        }
+
+        // Initial render when the page loads
+        document.addEventListener('DOMContentLoaded', renderStatus);
+    </script>
+</body>
+</html>
